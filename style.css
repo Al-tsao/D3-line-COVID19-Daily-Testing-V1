@@ -20,3 +20,7 @@ body{
 .date {
   font-weight: bold;
 }
+
+.axis {
+  font-size: 12px;
+}
