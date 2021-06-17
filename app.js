@@ -102,7 +102,56 @@ async function draw() {
     .attr('fill', 'black')
     .text('Testing')
 
+  // Tooltip
+  const tooltip = d3.select('#tooltip')
+  const tooltipDot = ctr.append('circle')
+    .attr('r', 5)
+    .attr('fill', '#fc8781')
+    .attr('stroke', 'black')
+    .attr('stroke-width', 2)
+    .style('opacity', 0)
+    .style('pointer-events', 'none')
 
+  ctr.append('rect')
+    .attr('width', dimensions.ctrWidth)
+    .attr('height', dimensions.ctrHeight)
+    .style('opacity', 0)
+    .on('touchmouse mousemove', function (event) {
+      const mousePos = d3.pointer(event)
+      const date = xScale.invert(mousePos[0])
+
+      // Custom Bisector - left, center, right
+      const bisector = d3.bisector(xAccessor).left
+
+      const index = bisector(dataset, date)
+      const stock = dataset[index - 1]
+
+      // Update Image
+      tooltipDot.style('opacity', 1)
+        .attr('cx', xScale(xAccessor(stock)))
+        .attr('cy', yScale(yAccessor(stock)))
+        .raise()
+
+      // Data Kanban
+      tooltip.style('display', 'block')
+        .style('top', yScale(yAccessor(stock)) - 20 + 'px')
+        .style('left', xScale(xAccessor(stock)) + 'px')
+
+
+      const addComma = d3.format(",")
+      const newFormat = addComma(yAccessor(stock))
+      tooltip.select('.testing')
+        .text(`${newFormat}`)
+
+      const dateFormatter = d3.timeFormat('%Y/%m/%d')
+      tooltip.select('.date')
+        .text(`${dateFormatter(xAccessor(stock))}`)
+    })
+    .on('mouseleave', function (event) {
+      tooltipDot.style('opacity', 0)
+
+      tooltip.style('display', 'none')
+    })
 
 }
 draw()
